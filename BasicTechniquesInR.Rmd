@@ -1,0 +1,346 @@
+---
+title: "Basic Techniques in R"
+author: "Umair Sayeed"
+fontsize: 12pt
+output: pdf_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+\part{}
+
+\noindent 1. Suppose the following are the final high school GPAs of a group of
+college students: 3.62, 3.84, 3.95, 4.00, 3.12, 2.86, 3.77, 2.53, 3.26, and 2.90.
+Create a vector that stores these values in the order specified.  Choose a 
+variable name that's descriptive but relatively short.
+\vspace{0.2in}
+
+```{r}
+studentsGPAs <- c(3.62, 3.84, 3.95, 4.00, 3.12, 2.86, 3.77, 2.53, 3.26, 2.90)
+studentsGPAs
+```
+
+\vspace{0.2in}
+\noindent 2. Remove the $4^{\text{th}}$ value from the vector in problem 1 and 
+store the new vector.  Then print the new vector.
+\vspace{0.2in}
+
+```{r}
+newStudentsGPAs <- studentsGPAs[-4]
+newStudentsGPAs
+
+```
+
+\vspace{0.2in}
+\noindent 3. Add the GPA 2.14 to the end of the vector in problem 2 and store the 
+new vector.  Then print it.
+\vspace{0.2in}
+
+```{r}
+newStudentsGPAs <- c(newStudentsGPAs, 2.14)
+newStudentsGPAs
+```
+
+\vspace{0.2in}
+\noindent 4. Find the average, median, and standard deviation of the GPAs of this
+group of students.
+\vspace{0.2in}
+
+```{r}
+mean(newStudentsGPAs)
+median(newStudentsGPAs)
+sd(newStudentsGPAs)
+```
+
+\vspace{0.2in}
+\noindent 5. Using an \texttt{R} function, find the length of the vector in 
+problem 4.
+\vspace{0.2in}
+
+```{r}
+length(newStudentsGPAs)
+```
+
+\vspace{0.2in}
+\noindent 6. Suppose the following are the SAT quantitative scores for the same
+group of students: 640, 680, 790, 730, 580, 560, 670, 450, 650, and 490, 
+respectively.  Create and print a vector that stores these SAT scores in the 
+order provided.
+\vspace{0.2in}
+
+```{r}
+studentsSAT <- c(640, 680, 790, 730, 580, 560, 670, 450, 650, 490)
+studentsSAT
+```
+
+\vspace{0.2in}
+\noindent 7. Find the mean and median SAT quantitative scores for this group of
+students.
+\vspace{0.2in}
+
+```{r}
+mean(studentsSAT)
+median(studentsSAT)
+```
+
+\vspace{0.2in}
+\noindent 8. Create a vector with the following values (in this order): 1, 1, 1, 
+0, 0, 0, 0, 0, 1, 1.  Suppose that 1 represents "male" and 0 represents "female."
+\vspace{0.2in}
+
+```{r}
+boysAndGirls <- c(1, 1, 1, 0, 0, 0, 0, 0, 1, 1)
+boysAndGirls
+
+```
+
+\vspace{0.2in}
+\noindent 9. Find the average of the values in the gender vector you created in
+problem 9.
+\vspace{0.2in}
+
+```{r}
+mean(boysAndGirls)
+paste("Percentage of males in the group: ", 100*mean(boysAndGirls), "%")
+```
+
+\vspace{0.2in}
+\noindent 10. Change your gender vector to a factor.  Make sure the change is
+permanent and print the result.
+\vspace{0.2in}
+
+```{r}
+boysAndGirls_fac = as.factor(boysAndGirls)
+boysAndGirls_fac
+```
+
+\vspace{0.2in}
+\noindent 11. Create a data frame that contains three variables, which correspond
+to the three vectors you've already created.  Then print the data frame.
+\vspace{0.2in}
+
+```{r}
+my_df <- data.frame(
+  boysAndGirls,
+  studentsSAT,
+  studentsGPAs
+  
+)
+
+my_df
+```
+
+\vspace{0.2in}
+\noindent 12. How many rows and columns does your data frame have?  Find these
+using appropriate \texttt{R} function(s).
+\vspace{0.2in}
+
+```{r}
+str(my_df)
+nrow(my_df)
+ncol(my_df)
+```
+
+\vspace{0.2in}
+\noindent 13. Print the data associated with the $6^{\text{th}}$ student.
+\vspace{0.2in}
+
+```{r}
+my_df[6,]
+```
+
+
+\part{}
+
+\noindent 1. Create and store a matrix that has five rows and four columns and 
+that contains the values 6, 3, 12, 7, 1, 2, 0, 25, 23, 19, 5, 2, 5, 7, 12, 11, 
+10, 8, 9, and 5 (in that order).  Fill the matrix by column (the default).
+\vspace{0.2in}
+
+```{r}
+myMat <- matrix(data = c(6, 3, 12, 7, 1, 2, 0, 25, 23, 19, 
+                         5, 2, 5, 7, 12, 11, 10, 8, 9, 5),
+                nrow = 5, ncol = 4) 
+myMat
+
+```
+
+\vspace{0.2in}
+\noindent 2. Print the data from the third column.
+\vspace{0.2in}
+
+```{r}
+myMat[, 3]
+```
+
+\vspace{0.2in}
+\noindent 3. Print the data from the fifth row.
+\vspace{0.2in}
+
+```{r}
+myMat[5, ]
+```
+
+\vspace{0.2in}
+\noindent 4. Remove the second and fourth rows from the matrix and store the 
+resulting matrix using a different name.  Then print the new matrix.
+\vspace{0.2in}
+
+```{r}
+myMatNew <- myMat[-c(2, 4),]
+myMatNew
+```
+
+
+<!-- part 3 -->
+\part{}
+
+In this part you will use the \texttt{mtcars} dataset, which is included in base
+\texttt{R}.
+
+\vspace{0.2in}
+\noindent 1. Use the \texttt{str()} function to examine the structure of the 
+data set.
+\vspace{0.2in}
+
+```{r}
+str(mtcars)
+```
+
+\vspace{0.2in}
+\noindent 2. Print the first six rows of the dataset.
+\vspace{0.2in}
+
+```{r}
+mtcars[1:6,]
+```
+
+\vspace{0.2in}
+\noindent 3. Print the mpg's (\texttt{mpg}) of all of the cars in the data set 
+using subsetting.
+\vspace{0.2in}
+
+```{r}
+mtcars$mpg
+```
+
+\vspace{0.2in}
+\noindent 4. Find the average and median mpg of the cars in the data set.
+\vspace{0.2in}
+
+```{r}
+mean(mtcars$mpg)
+median(mtcars$mpg)
+```
+
+\vspace{0.2in}
+\noindent 5. Filter the cars that got less than 15 mpg.
+\vspace{0.2in}
+
+```{r}
+mtcars[mtcars$mpg < 15, ]  
+```
+
+\vspace{0.2in}
+\noindent 6. Filter the cars with an mpg of at least 20 and a horsepower under 
+100.
+\vspace{0.2in}
+
+```{r}
+mtcars[mtcars$mpg >= 20 & mtcars$hp < 100, ]  
+```
+
+\vspace{0.2in}
+\noindent 7. Remove the second, third, sixth, tenth, and fifteenth rows from the 
+\texttt{mtcars} data frame and store the result.  Then print the new data frame.
+\vspace{0.2in}
+
+```{r}
+mtcarsNew <- mtcars[-c(2, 3, 6, 10, 15),]
+mtcarsNew
+```
+
+\vspace{0.2in}
+\noindent 8. Print the miles per gallon (\texttt{mpg}) and horsepower 
+(\texttt{hp}) variables by subsetting the \texttt{mtcars} data frame.
+\vspace{0.2in}
+
+```{r}
+mpg_hp_df <- data.frame(mtcars$mpg, mtcars$hp)
+mpg_hp_df
+
+```
+
+
+<!-- part 4 -->
+\part{}
+
+In this part you will work with data sets from the website for the Lock, 
+Lock, Lock, Lock, and Lock textbook \textit{Statistics: Unlocking the Power of
+Data}. Go to the following URL to access these data sets: 
+\url{http://www.lock5stat.com/datapage.html}.
+\vspace{0.1in}
+
+
+\noindent 1. Download the CSV file for the \textit{Cars2015} data set and read it
+into \texttt{R}. Use \texttt{str()} to examine the structure of the data set. 
+Then make three plots: one for city mpg (\texttt{CityMPG}), one for car type 
+(\texttt{Type}), and one for the city mpg based on the car type. Make sure you're 
+using an appropriate plot for each (i.e., a histogram or boxplot for a 
+quantitative variables and a bar graph for a categorical variable).
+\vspace{0.2in}
+
+```{r}
+Cars2015 <- read.csv(file = "C:/Users/sayee/Downloads/Cars2015.csv",
+                     header = TRUE)  
+
+str(Cars2015)  
+
+hist(Cars2015$CityMPG)  
+
+barplot(table(Cars2015$Type))  
+
+plot(x = as.factor(Cars2015$Type), y = Cars2015$CityMPG)  
+
+```
+
+\vspace{0.2in}
+\noindent 2. Download the CSV file for the \textit{HollywoodMovies} data set. As
+you look at the data set, do you notice any missing values?  If so, keep track of
+what symbol(s) they are represented by.  Read your data into \texttt{R}, making
+sure you use the \texttt{na.strings} argument, where \texttt{na.strings = 
+[something]}. I'll leave it to you to figure out what should go on the right-hand 
+side of the equal sign.
+
+Now use the \texttt{summary()} function to find the five-number summary (as well
+as the mean) for the Rotten Tomatoes score variable (\texttt{RottenTomatoes}). 
+Note that this function also prints the number of NAs, if any exist.
+\vspace{0.2in}
+
+```{r}
+HollywoodMovies <- read.csv(file = "C:/Users/sayee/Downloads/HollywoodMovies.csv",
+                            header = TRUE, na.strings = "")  
+
+summary(HollywoodMovies$RottenTomatoes)  
+
+```
+
+\vspace{0.2in}
+\noindent 3. Search for the text (.txt) file for the \textit{ACS} data set.  Copy
+and paste the entire data set into a notepad/wordpad/textedit file (whatever your
+computer has for basic text files).  Then read the data into \texttt{R}, making 
+sure any missing values are represents by NAs.  Next, make a scatterplot of the 
+number of hours worked per week (\texttt{HoursWk}) by age (\texttt{Age}) for the 
+individuals in the data set; i.e., age should be on the x-axis and the number of 
+hours worked per week on the y-axis.
+\vspace{0.2in}
+
+```{r}
+ACS <- read.table(file = "C:/Users/sayee/Downloads/ACS.txt",header = TRUE, sep = "\t")
+plot(x = ACS$Age, y = ACS$HoursWk)
+```
+
+
+

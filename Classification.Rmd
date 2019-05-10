@@ -1,0 +1,447 @@
+---
+title: "Classification"
+author: "Umair Sayeed"
+fontsize: 12pt
+output: pdf_document
+urlcolor: blue
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+\part{}
+
+Use the \texttt{NBA1718} dataset.  The data were adapted from data downloaded from [Basketball-Reference.com](http://basketball-reference.com).  The dataset 
+contains professional basketball data for all teams in the NBA from the 2017-18 
+regular season.  Suppose you want to use last year's data to predict whether or 
+not a team will make the playoffs this year (\texttt{PLAYOFFS}, where 1 indicates 
+that the team made the playoffs and 0 that the team did not make the playoffs) 
+based on the team's average points scored per game (\texttt{PTS}), average total 
+rebounds per game (\texttt{TRB}), average assists per game (\texttt{AST}), and 
+average steals per game (\texttt{STL}).  Let's say there's a team that finishes 
+this season with the following per-game averages: 110 points, 48 total rebounds, 
+30 assists, and seven steals.
+\vspace{0.2in}
+
+\noindent 1. What are the response and predictor variables?  What type of 
+variable is each -- quantitative or qualitative?
+\vspace{0.2in}
+
+
+\vspace{0.2in}
+```{r}
+"Predictor Variables: PTS, TRB, AST, STL (All quantitative)"
+"Response variable: PLAYOFFS (Qualitative)"
+```
+
+\vspace{0.2in}
+\noindent 2. Would you want to use linear regression, a classification method, or 
+a clustering method here?  Explain.
+\vspace{0.2in}
+
+
+\vspace{0.2in}
+```{r}
+"Classification method is most appropriate because the response is qualitiative."
+```
+
+\vspace{0.2in}
+\noindent 3. Use $k$-NN with $k=5$ to predict whether or not a team with these
+stats will make the playoffs.  Write a sentence describing your finding.
+\vspace{0.2in}
+
+
+\vspace{0.2in}
+```{r}
+library(caret)
+NBA <- read.csv("C:/Users/sayee/Downloads/NBA1718.csv",
+                header = TRUE)
+
+knnFit <- train(PLAYOFFS ~ PTS + TRB + AST + STL, data = NBA, 
+  method = "knn",
+  trControl = trainControl(method = "none"),
+  tuneGrid = expand.grid(k = 5),
+  preProcess = c("center", "scale")
+)
+
+team1 <- data.frame(PTS = 110, TRB = 48, AST = 30, STL = 7)
+predict(object = knnFit, newdata = team1)
+
+"A team averaging 110 ppg, 48 trbpg, 30 astpg, 7 stlpg is predicted to make playoffs."
+
+```
+
+\vspace{0.2in}
+\noindent 4. Find the binary logisic regression model used to make such a 
+prediction.  Write out the model (with the coefficient estimates) in logit form.
+\vspace{0.2in}
+
+
+\vspace{0.2in}
+```{r}
+glm_info <- glm(PLAYOFFS ~ PTS + TRB + AST + STL, data = NBA, family = "binomial")
+glm_info$coefficients
+```
+
+\vspace{0.2in}
+\noindent 5. Use the binary logistic regression model you found in problem 4 to 
+predict whether or not a team with these stats will make the playoffs.  Write a 
+sentence describing your finding.
+\vspace{0.2in}
+
+
+\vspace{0.2in}
+```{r}
+predict(object = glm_info, 
+        newdata = data.frame(PTS = 110, TRB = 48, AST = 30, STL = 7),
+        type = "response")
+"A team averaging 110 ppg, 48 trbpg, 30 astpg, 7 stlpg is predicted to make playoffs.
+Since p = 0.08>0.05, response = 1; i.e. team will make playoffs."
+```
+
+\vspace{0.2in}
+\noindent 6. Use linear discriminant analysis to predict whether or not a team 
+with these stats will make the playoffs.  Write a sentence describing your 
+finding.
+\vspace{0.2in}
+
+
+\vspace{0.2in}
+```{r}
+library(caret)
+NBA$PLAYOFFS <- as.factor(NBA$PLAYOFFS)
+ldaFit <- train(PLAYOFFS ~ PTS + TRB + AST + STL, data = NBA, 
+  method = "lda",
+  trControl = trainControl(method = "none"),
+  preProcess = c("BoxCox", "center", "scale")
+)
+predict(object = ldaFit, 
+        newdata = data.frame(PTS = 110, TRB = 48, AST = 30, STL = 7))
+"A team averaging 110 ppg, 48 trbpg, 30 astpg, 7 stlpg
+ is predicted to not make playoffs."
+```
+
+\vspace{0.2in}
+\noindent 7. Use quadratic discriminant analysis to predict whether or not a team 
+with these stats will make the playoffs.  Write a sentence describing your 
+finding.
+\vspace{0.2in}
+
+
+\vspace{0.2in}
+```{r}
+qdaFit <- train(PLAYOFFS ~ PTS + TRB + AST + STL, data = NBA, 
+  method = "qda",
+  trControl = trainControl(method = "none"),
+  preProcess = c("BoxCox", "center", "scale")
+)
+
+predict(object = qdaFit, 
+        newdata = data.frame(PTS = 110, TRB = 48, AST = 30, STL = 7))
+"A team averaging 110 ppg, 48 trbpg, 30 astpg, 7 stlpg
+ is predicted to make playoffs."
+```
+
+\vspace{0.2in}
+\noindent 8. Use Naive Bayes to predict whether or not a team with these stats 
+will make the playoffs.  Write a sentence describing your finding.
+\vspace{0.2in}
+
+
+\vspace{0.2in}
+```{r}
+library(e1071)
+nbFit <- naiveBayes(PLAYOFFS ~ PTS + TRB + AST + STL, data = NBA)
+                    
+new_data <- data.frame(PTS = 110, AST = 48, TRB = 30, STL = 7)
+predict(object = nbFit, newdata = new_data, type = "raw")
+"A team averaging 110 ppg, 48 trbpg, 30 astpg, 7 stlpg
+ is predicted to definitely make playoffs."
+
+```
+
+
+
+\part{}
+
+Use the \texttt{income\_class} dataset.   It was adapted from the \textit{Adult} dataset from the 
+[UCI Machine Learning Repository](https://archive.ics.uci.edu/ml/datasets.html) 
+and contains demographic data on a few thousand people.  Suppose you want to
+predict someone's working class (\texttt{WorkClass}, such as private, federal 
+government, etc.) based on their race (\texttt{Race}), age (\texttt{Age}), income
+(\texttt{Income}), the number of years they were in school (\texttt{EducYears}), 
+and the number of hours they work per week (\texttt{HoursPerWeek}).  Let's say
+you want to predict the working class of a white 60-year-old who was in school 
+for 14 years, makes \$95,000, and works 40 hours per week.
+\vspace{0.2in}
+
+\noindent 1. What are the response and predictor variables?  What type of 
+variable is each -- quantitative or qualitative?
+\vspace{0.2in}
+
+
+\vspace{0.2in}
+```{r}
+"Predictor Variables: Race (qualitative), Age (quantitative),
+                      Income (qualitative), EducYears (quantitative),
+                      HoursPerWeek (quantitative)"
+"Response Variable: WorkClass (Qualitative)"
+
+```
+
+\vspace{0.2in}
+\noindent 2. Would you want to use linear regression, a classification method, or 
+a clustering method here?  Explain.
+\vspace{0.2in}
+
+
+\vspace{0.2in}
+```{r}
+"Since the response is qualitative, a classification method would be most appropriate."
+```
+
+\vspace{0.2in}
+\noindent 3. Use $k$-NN with $k=7$ to make the prediction.  Write a sentence
+describing your finding.
+\vspace{0.2in}
+
+
+\vspace{0.2in}
+```{r}
+
+library(caret)
+
+incomeclass <- read.csv("C:/Users/sayee/Downloads/income_class.csv",
+                header = TRUE)
+knnFit1 <- train(WorkClass ~ Race + Age + Income + EducYears + HoursPerWeek,
+                 data = incomeclass,
+                 method = "knn",
+                 trControl = trainControl(method = "none"),
+                 preProcess = c("center", "scale"))
+
+class1 <- data.frame(Race = "White", Age = 60, Income = ">50K",
+                     EducYears = 14, HoursPerWeek = 40, data = incomeclass)
+predict(object = knnFit1, newdata = class1)
+
+"A 60 year old male that works 40 hrs a week, went to school for 14 yrs.,
+ and earns ver $50k/yr. is predicted to be in the Private income class."
+
+```
+
+\vspace{0.2in}
+\noindent 4. Use $k$-NN with $k$ set to the value suggested by the rule of thumb
+discussed in class to make the prediction.  Write a sentence describing your 
+finding.
+\vspace{0.2in}
+
+
+\vspace{0.2in}
+```{r}
+knnFit <- train(WorkClass ~ Race + Age + Income + EducYears +
+                HoursPerWeek, data = incomeclass, method = "knn",
+                trControl = trainControl(method = "none"),
+                tuneGrid = expand.grid(k = 3), #sqrt of n observations
+                preProcess = c("center", "scale"))
+
+class1 <- data.frame(Race = "White", Age = 60, Income = ">50K",
+                     EducYears = 14, HoursPerWeek = 40, data = incomeclass)
+predict(object = knnFit, newdata = class1)
+
+"A 60 year old male that works 40 hrs a week, went to school for 14 yrs.,
+ and earns ver $50k/yr. is predicted to be in the Private income class."
+```
+
+\vspace{0.2in}
+\noindent 5. Use Naive Bayes to make the prediction.
+\vspace{0.2in}
+
+
+\vspace{0.2in}
+```{r}
+library(e1071)
+nbFit <- naiveBayes(WorkClass ~ Race + Age + Income + EducYears + HoursPerWeek,
+                    data = incomeclass)
+                    
+new_data <- data.frame(Race = "White", Age = 60, Income = ">50K",
+                     EducYears = 14, HoursPerWeek = 40)
+
+predict(object = nbFit, newdata = new_data, type = "raw")
+
+```
+
+\vspace{0.2in}
+\noindent 6. If appropriate and advisable, use binary logistic regression to make 
+a prediction, and describe your finding.  If it isn't appropriate or advisable to 
+do so, explain why.
+\vspace{0.2in}
+
+
+\vspace{0.2in}
+```{r}
+"Since the response has more than two levels for the given data,
+ it is not appropriate to use binary logistic regression to make a prediction."
+```
+
+\vspace{0.2in}
+\noindent 7. If appropriate and advisable, use LDA to make a prediction, and 
+describe and your findings.  If it isn't appropriate or advisable to do so, 
+explain why.
+\vspace{0.2in}
+
+
+\vspace{0.2in}
+```{r}
+"Since there are qualitative predictors, it is not advisable
+ to use LDA to make a prediction."
+```
+
+\vspace{0.2in}
+\noindent 8. If appropriate and advisable, use QDA to make a prediction, and 
+describe and your findings.  If it isn't appropriate or advisable to do so, 
+explain why.
+\vspace{0.2in}
+
+
+\vspace{0.2in}
+```{r}
+"Since there are qualitative predictors, it is not advisable
+ to use QDA to make a prediction."
+```
+
+\vspace{0.2in}
+
+
+\part{}
+
+Use the \texttt{VideoGames} dataset.  It contains made-up data related to video games.  Suppose you 
+want to predict whether or not someone plays video games based on their 
+employment/student status, age, and sex.  Let's say you want to predict whether 
+five people play video games: (1) a 19-year-old male student, (2) a 21-year-old 
+female student, (3) a 33-year-old female who works a full-time job, (4) a 
+58-year-old male who doesn't have a full-time job and isn't a student, and (5) a 
+23-year-old male who works a full-time job.
+\vspace{0.2in}
+
+\noindent 1. What are the response and predictor variables?  What type of 
+variable is each -- quantitative or qualitative?
+\vspace{0.2in}
+
+
+\vspace{0.2in}
+```{r}
+"Predictor Variables: Status (qualitative), Age (qualitative), Sex (qualitative)"
+"Response Variable: PlaysVideoGames (qualitative)"
+```
+
+\vspace{0.2in}
+\noindent 2. Would you want to use linear regression, a classification method, or 
+a clustering method here?  Explain.
+\vspace{0.2in}
+
+
+\vspace{0.2in}
+```{r}
+"Classification would be most appropriate since the response is qualitative."
+```
+
+\vspace{0.2in}
+\noindent 3. Use $k$-NN with $k=9$ to make the predictions, and describe your
+findings.
+\vspace{0.2in}
+
+
+\vspace{0.2in}
+```{r}
+videogames <- read.csv("C:/Users/sayee/Downloads/VideoGames.csv", 
+                       header = TRUE)
+knnFit <- train(PlaysVideoGames ~ Status + Age + Sex, data = videogames, 
+  method = "knn",
+  trControl = trainControl(method = "none"),
+  tuneGrid = expand.grid(k = 9),     # k = 9 nearest neighbors
+  preProcess = c("center", "scale")
+)
+person1 <- data.frame(Status = "Student", Age = "18-25", Sex = "Male")
+person2 <- data.frame(Status = "Student", Age = "18-25", Sex = "Female")
+person3 <- data.frame(Status = "Full-Time Job", Age = "26-35", Sex = "Female")
+person4 <- data.frame(Status = "Other", Age = "46+", Sex = "Male")
+person5 <- data.frame(Status = "Full-Time Job", Age = "18-25", Sex = "Male")
+predict(object = knnFit, newdata = person1)
+predict(object = knnFit, newdata = person2)
+predict(object = knnFit, newdata = person3)
+predict(object = knnFit, newdata = person4)
+predict(object = knnFit, newdata = person5)
+
+"All of the people described in the prompt are predicted to play video games
+ except for the 58-year-old male who doesn't have a full-time job and isn't a student."
+```
+
+\vspace{0.2in}
+\noindent 4. If appropriate and advisable, use logistic regression to make the 
+predictions, and describe your finding.  If it isn't appropriate or advisable to 
+do so, explain why.
+\vspace{0.2in}
+
+
+\vspace{0.2in}
+```{r}
+glm_info <- glm(PlaysVideoGames ~ Status + Age + Sex, 
+                data = videogames, family = "binomial")
+predict(object = glm_info,
+        newdata = data.frame(Status = c("Student", "Student", 
+                                        "Full-Time Job", "Other", "Full-Time Job"),
+                             Age = c("18-25", "18-25", "26-35", "46+", "18-25"),
+                             Sex = c("Male", "Female", "Female", "Male", "Male")),
+        type = "response")
+"Probabilities of being playing video games are output. 1st person has
+ a 90% chance of being a gamer, 2nd person = 42% (probably not a gamer),
+ 3rd person has a 77% chance of being a gamer, 4th person has a 14% chance
+ (probably not a gamer), 5th person has a 79% chance of being a gamer."
+```
+
+\vspace{0.2in}
+\noindent 5. Use Naive Bayes to make the predictions, and describe your findings.
+\vspace{0.2in}
+
+
+\vspace{0.2in}
+```{r}
+nbFit <- naiveBayes(PlaysVideoGames ~ Status + Age + Sex, data = videogames)
+
+newdata = data.frame(Status = c("Student", "Student", 
+                                        "Full-Time Job", "Other", "Full-Time Job"),
+                             Age = c("18-25", "18-25", "26-35", "46+", "18-25"),
+                             Sex = c("Male", "Female", "Female", "Male", "Male"))
+predict(object = nbFit, newdata = newdata)
+"All of the people described in the prompt are predicted to play video games
+ except for the 58-year-old male who doesn't have a full-time job and isn't a student."
+```
+
+\vspace{0.2in}
+\noindent 6. If appropriate and advisable, use LDA to make the predictions.  Then 
+describe your findings.  If it isn't appropriate or advisable to do so, explain 
+why.
+\vspace{0.2in}
+
+
+\vspace{0.2in}
+```{r}
+"LDA is not appropriate to use to make predictions because
+ there are qualitative predictor variables."
+```
+
+\vspace{0.2in}
+\noindent 7. If appropriate and advisable, use QDA to make the predictions.  Then 
+describe your findings.  If it isn't appropriate or advisable to do so, explain 
+why.
+\vspace{0.2in}
+
+
+\vspace{0.2in}
+```{r}
+"QDA is not advisable to use to make predictions because
+ there are qualitative predictor variables."
+```
+
+
+

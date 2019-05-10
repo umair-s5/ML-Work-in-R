@@ -1,0 +1,625 @@
+---
+title: "RegressionAndResiduals"
+author: "Umair Sayeed"   
+fontsize: 12pt
+output: pdf_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.height = 4, fig.width = 6, 
+  fig.align = "center"
+)
+```
+
+\part{}
+
+Use the \texttt{Homes\_Sales} dataset.  It contains data related to NJ housing prices from 2018.  Suppose 
+you want to model the selling price of the house (\texttt{PRICE}) based on the 
+number of bedrooms (\texttt{BEDS}) and the size of the house (\texttt{SQFT}, 
+measured in square feet).
+\vspace{0.2in}
+
+
+\noindent 1. What are the response and predictor variables?  What type of 
+variable is each -- quantitative or qualitative?
+\vspace{0.2in}
+
+```{r}
+"Predictor variable: BEDS (Quantitative), SQFT (Quantitative)"
+"Response variable: PRICE (Quantitative)"
+
+```
+
+\vspace{0.2in}
+\noindent 2. What is the regression equation?  Write it two ways -- first using
+$x$'s and $y$'s and then using the variable names.
+\vspace{0.2in}
+
+
+
+\vspace{0.2in}
+```{r}
+"PRICE = -201538.1 + 140.7*SQFT + 122764.8*BEDS"
+"Y-hat = -201538.1 + 140.7*X1 + 122764.8*X2"
+```
+
+\vspace{0.2in}
+\noindent 3. Create a residual plot.  Based on the residual plot, is the linear 
+model you fit to the data reasonable to use to model the selling price of the 
+house based on the number of bedrooms and the size of the house?  Why or why 
+not?  Note: you should notice a couple of outliers, but they don't seem to have 
+a strong impact on the model here.  Regardless of your answer, continue answering 
+the rest of the questions.
+\vspace{0.2in}
+
+
+
+\vspace{0.2in}
+```{r}
+homes <- read.csv(file = "C:/Users/sayee/Downloads/Home_Sales.csv", 
+                  header = TRUE)
+homes.lm <- lm(PRICE ~ SQFT + BEDS, data = homes)
+summary(homes.lm)
+homes.res = resid(homes.lm)
+
+coeffs <- homes.lm$coefficients
+coeffs
+plot(homes.lm$fitted.values, homes.res, 
+    ylab = "Residuals", xlab = "Price ($)")
+abline(0,0)
+```
+
+\vspace{0.2in}
+\noindent 4. Interpret the regression coefficients.  If it isn't appropriate to 
+interpret any of them, explain why.
+\vspace{0.2in}
+
+```{r}
+"SQFT Slope: For every additional square foot of area, 
+ holding the # of bedrooms constant, the home appreciates
+ in value by $140.68 on average."
+"BEDS Slope: For every additional bedroom in a home, 
+ holding the area (sqft.) constant, the home appreciates
+ in value by $122764.83 on average"
+"Intercept: It is inappropriate to interpret the intercept
+ because there are no homes in the dataset that meet the
+ conditions: SQFT = 0 and BEDS = 0."
+
+```
+
+\vspace{0.2in}
+\noindent 5. Predict the selling price of a 2,500 square foot house with three 
+bedrooms.  First do so by showing all of your work.  Then verify your answer 
+using the \texttt{predict()} function in \texttt{R}.  Interpret your result.
+\vspace{0.2in}
+
+
+
+\vspace{0.2in}
+```{r}
+PRICE = -201538.1 + 140.6808*2500 + 122764.8297*3
+PRICE
+predict(object = homes.lm, newdata = data.frame(SQFT = 2500, BEDS = 3))
+"The selling price of a 2500 sqft. house with 3
+ bedrooms is predicted to be $518458.4."
+```
+
+\vspace{0.2in}
+\noindent 6. Predict the selling price of an 1,800 square foot house with two 
+bedrooms.  First do so by showing all of your work.  Then verify your answer 
+using the \texttt{predict()} function in \texttt{R}.  Interpret your result.
+\vspace{0.2in}
+
+
+
+\vspace{0.2in}
+```{r}
+PRICE = -201538.1 + 140.6808*1800 + 122764.8297*2
+PRICE
+predict(object = homes.lm, newdata = data.frame(SQFT = 1800, BEDS = 2))
+"The selling price of an 1800 sqft home with 2 bedrooms
+ is predicted to be $297217"
+
+```
+
+\vspace{0.2in}
+For the rest of Part I, suppose you want to model the selling price of the house 
+(\texttt{PRICE}) based on the same variables as before (the number of bedrooms,
+\texttt{BEDS}, and the size of the house \texttt{SQFT}), as well as the number of 
+bathrooms (\texttt{BATHS}).
+\vspace{0.2in}
+
+\noindent 7. What are the response and predictor variables?  What type of 
+variable is each -- quantitative or qualitative?
+\vspace{0.2in}
+
+```{r}
+"Predictor variable: BEDS (Quantitative), SQFT (Quantitative),
+                     BATHS (Quantitative)"
+"Response variable: PRICE (Quantitative)"
+```
+
+
+\vspace{0.2in}
+\noindent 8. What is the regression equation?  Write it two ways -- first using
+$x$'s and $y$'s and then using the variable names.
+\vspace{0.2in}
+
+
+\vspace{0.2in}
+
+```{r}
+"PRICE = -234630.46 + 48.64*SQFT + 59085.18*BEDS + 170510.49*BATHS"
+"Y-hat = -234630.46 + 48.64*X1 + 59085.18*X2 + 170510.49*X3"
+
+```
+
+\vspace{0.2in}
+\noindent 9. Create a residual plot.  Based on the residual plot, is the linear 
+model you fit to the data reasonable to use to model the selling price of the 
+house (based on the number of bedrooms, the number of bathrooms, the size of the 
+lot, and the size of the house?  Why or why not?  Note: you should notice an 
+outlier, but it doesn't seem to have a strong impact on the line here. Regardless 
+of your answer, continue answering the rest of the questions.
+\vspace{0.2in}
+
+
+
+\vspace{0.2in}
+```{r}
+homes <- read.csv(file = "C:/Users/sayee/Downloads/Home_Sales.csv", 
+                  header = TRUE)
+homes.lm <- lm(PRICE ~ SQFT + BEDS + BATHS, data = homes)
+summary(homes.lm)
+homes.res = resid(homes.lm)
+
+coeffs <- homes.lm$coefficients
+coeffs
+plot(homes.lm$fitted.values, homes.res, 
+     ylab = "Residuals", xlab = "Price ($)")
+abline(0,0)
+
+"The linear model fit to the data is reasonable to use to model the selling
+ price of a home based on the number of bedrooms, number of bathrooms,
+ and the size of the house (sqft) because the residuals are roughly balanced."
+```
+
+\noindent 10. Predict the selling price of a 2,500 square foot house with three 
+bedrooms and two bathrooms.  First do so by showing all of your work.  Then
+verify your answer using the \texttt{predict()} function in \texttt{R}. 
+Interpret your result.
+\vspace{0.2in}
+
+
+
+\vspace{0.2in}
+```{r}
+PRICE = -234630.46 + 48.64*2500 + 59085.18*3 + 170510.49*2
+PRICE
+homes.lm <- lm(PRICE ~ SQFT + BEDS + BATHS, data = homes)
+predict(object = homes.lm, newdata = data.frame(SQFT = 2500,
+                                                BEDS = 3, BATHS = 2))
+"The selling price of a 2500 sqft home with 3 bedrooms
+ and 2 bathrooms is predicted to be $405256.7."
+```
+
+\vspace{0.2in}
+\noindent 11. Predict the selling price of an 1,800 square foot house that has 
+two bedrooms and two bathrooms.  First do so by showing all of your work.  Then 
+verify your answer using the \texttt{predict()} function in \texttt{R}. 
+Interpret your result.
+\vspace{0.2in}
+
+
+
+\vspace{0.2in}
+```{r}
+PRICE = -234630.46 + 48.64*1800 + 59085.18*2 + 170510.49*2
+PRICE
+homes.lm <- lm(PRICE ~ SQFT + BEDS + BATHS, data = homes)
+predict(object = homes.lm, newdata = data.frame(SQFT = 1800,
+                                                BEDS = 2, BATHS = 2))
+"The selling price of an 1800 sqft home with 2 bedrooms
+ and 2 bathrooms is predicted to be $312120.5."
+
+```
+
+\vspace{0.2in}
+\noindent 12. Suppose there's a 2,350 square foot house with four bedrooms and 
+three bathrooms that sold for $\$575,000$.  Find the residual for that house. 
+Was the house's selling price over- or under-predicted?  By how much?
+\vspace{0.2in}
+
+
+
+\vspace{0.2in}
+```{r}
+predict(object = homes.lm, newdata = data.frame(SQFT = 2350,
+                                                BEDS = 4, BATHS = 3))
+"The selling price was overpredicted by $52555.7."
+```
+
+
+
+
+\part{}
+
+Use the \texttt{birthsmokers} dataset. It contains data related to births (of humans).  Suppose you 
+want to model the birth weight of the baby (\texttt{Wgt\_Lbs}, in pounds) based 
+on the length of the gestation period (\texttt{Gest}, in weeks).
+\vspace{0.2in}
+
+
+\noindent 1. What are the response and predictor variables?  What type of 
+variable is each -- quantitative or qualitative?
+\vspace{0.2in}
+
+```{r}
+"Predictor variable: Gest (Quantitative)"
+"Response variable: Wgt_Lbs (Quantitative)"
+
+```
+
+\vspace{0.2in}
+\noindent 2. Create a scatterplot with the correct variable on each axis and with 
+the regression line added to the plot.  Based on the scatterplot, is the linear 
+model you fit to the data reasonable to use to model the birth weight of the baby
+based on the length of the gestation period?  Why or why not?
+\vspace{0.2in}
+
+
+
+\vspace{0.2in}
+```{r}
+birthsmokers <- read.table("C:/Users/sayee/Downloads/birthsmokers.txt", 
+                          header = TRUE)
+birthsmokers.lm <- lm(Wgt_Lbs ~ Gest, data = birthsmokers)
+birthsmokers.lm
+
+coeffs <- birthsmokers.lm$coefficients
+coeffs
+
+plot(birthsmokers$Gest, birthsmokers$Wgt_Lbs, pch = 19, 
+     cex.lab = 1, cex.axis = 1, cex = 1,
+     xlab = "Gestation Period (weeks)", 
+     ylab = "Birth Weight (lbs)")
+
+abline(a = coeffs[1], b = coeffs[2], lwd = 2)
+
+"The linear model that was fit to the data is reasonable to use to
+ model birth weight based on the length of the gestation period (weeks)
+ because the datapoints follow a linear trend, not a curve trend."
+
+```
+
+\vspace{0.2in}
+\noindent 3. Create a residual plot.  Based on the residual plot, is the linear 
+model you fit to the data reasonable to use to model the birth weight of the baby
+based on the length of the gestation period?  Why or why not?
+\vspace{0.2in}
+
+ 
+
+\vspace{0.2in}
+```{r}
+birthsmokers.res = resid(birthsmokers.lm)
+plot(birthsmokers.lm$fitted.values, birthsmokers.res, 
+     ylab = "Residuals", xlab = "Birth Weight (lbs)")
+abline(0,0)
+
+"The linear model fit to the data is reasonable to use to model
+ birth weight (lbs) based on the length of the gestation period
+ (weeks) because the residuals are balanced."
+
+```
+
+\vspace{0.2in}
+\noindent 4. What is the regression equation?  Write it two ways -- first using
+$x$'s and $y$'s and then using the variable names.
+\vspace{0.2in}
+
+
+
+\vspace{0.2in}
+```{r}
+summary(birthsmokers.lm)
+"Wgt_Lbs = -4.49082 + 0.28840*Gest"
+"Y-hat = -4.49082 + 0.28840*X"
+```
+
+\vspace{0.2in}
+\noindent 5. Interpret the regression coefficients.  If it isn't appropriate to 
+interpret either of them, explain why.
+\vspace{0.2in}
+
+```{r}
+
+"Slope: For every additional week of gestation, the
+ birth weight increases by 0.28840 lbs on average."
+"Intercept: It is not appropriate to interpret the 
+ intercept because there are no items in the dataset
+ that satisfy the condition: Gest = 0."
+
+```
+
+\vspace{0.2in}
+\noindent 6. Predict the birth weight of a baby for whom the length of the 
+gestation period was 40 weeks.  First do so by showing all of your work.  Then 
+verify your answer using the \texttt{predict()} function in \texttt{R}. 
+Interpret your result.
+\vspace{0.2in}
+
+
+
+\vspace{0.2in}
+```{r}
+weight = -4.49082 + 0.28840*40
+weight
+predict(object = birthsmokers.lm, newdata = data.frame(Gest = 40))
+"Given a gestation period of 40 weeks, the baby's
+ birth weight is predicted to be 7.045216 lbs."
+```
+
+\vspace{0.2in}
+\noindent 7. Use a 95% prediction interval to predict the birth weight of a baby 
+for whom the length of the gestation period was 40 weeks.  Interpret your result.
+\vspace{0.2in}
+
+
+
+\vspace{0.2in}
+```{r}
+predict(object = birthsmokers.lm, newdata = data.frame(Gest = 40),
+        interval = "prediction")
+"We predict with 95% confidence that birth weight
+ is between 6.276207 lbs and 7.814224 lbs given
+ a gestation period of 40 weeks."
+
+```
+
+\vspace{0.2in}
+For the rest of Part II, suppose you want to model the birth weight of the baby
+(\texttt{Wgt\_Lbs}, in pounds) based on the length of the gestation period 
+(\texttt{Gest}, in weeks) as well as the mother's smoking status (\texttt{Smoke}, 
+where 1 indicates the mother was a smoker and 0 indicates the mother was not a 
+smoker).
+\vspace{0.2in}
+
+\noindent 8. What are the response and predictor variables?  What type of 
+variable is each -- quantitative or qualitative?
+\vspace{0.2in}
+
+```{r}
+"Predictor variable: Smoke (Qualitative), Gest (Quantitative)"
+"Response varable: Wgt_Lbs (Quantitative)"
+
+
+```
+
+\vspace{0.2in}
+\noindent 9. What is the regression equation?  Write it two ways -- first using
+$x$'s and $y$'s and then using the variable names.
+\vspace{0.2in}
+
+
+
+\vspace{0.2in}
+```{r}
+birthsmokers.lm <- lm(Wgt_Lbs ~ Gest + Smoke, data = birthsmokers)
+birthsmokers.lm
+"Wgt_Lbs = -5.2681 +0.3155*Gest - 0.5391*Smoke"
+"Y-hat = -5.2681 +0.3155*X1 - 0.5391*X2"
+```
+
+\vspace{0.2in}
+\noindent 10. Interpret the regression coefficients.  If it isn't appropriate to 
+interpret any of them, explain why.
+\vspace{0.2in}
+
+```{r}
+"Gest Slope: Holding the Smoke variable constant, every 
+ additional week of gestation causes increases birth weight
+ by 0.3155 lbs on average."
+"Smoke Slope: Holding the gestation period constant, the birth
+ weight of a baby whose mother was a smoker is 0.5391 lbs lighter
+ than a baby whose mother was a smoker, on average."
+"Intercept: It is not appropriate to interpret the intercept because
+ there are no elements in the dataset that satisfy the condition Gest = 0."
+
+```
+
+\vspace{0.2in}
+\noindent 11. Predict the birth weight of a baby for whom the length of the 
+gestation period was 40 weeks and whose mother was a smoker.  First do so by 
+showing all of your work.  Then verify your answer using the \texttt{predict()} 
+function in \texttt{R}.  Interpret your result.
+\vspace{0.2in}
+
+
+
+\vspace{0.2in}
+```{r}
+Wgt = -5.2681 +0.3155*40 - 0.5391
+Wgt
+predict(object = birthsmokers.lm, newdata = data.frame(Gest = 40,
+                                                       Smoke = 1))
+"Given a gestation period of 40 weeks, the
+ birth weight of a baby whose mother was a 
+ smoker is predicted to be 6.812042 lbs."
+```
+
+\vspace{0.2in}
+\noindent 12. Predict the birth weight of a baby for whom the length of the 
+gestation period was 40 weeks and whose mother was \underline{not} a smoker. 
+First do so by showing all of your work.  Then verify your answer using the 
+\texttt{predict()} function in \texttt{R}.  Interpret your result.
+\vspace{0.2in}
+
+
+
+\vspace{0.2in}
+```{r}
+wgt = -5.2681 +0.3155*40 - 0.5391*0
+wgt
+predict(object = birthsmokers.lm, newdata = data.frame(Gest = 40,
+                                                       Smoke = 0))
+"Given a gestation period of 40 weeks, the
+ birth weight of a baby whose mother was not 
+ a smoker is predicted to be 7.351169 lbs."
+```
+
+\vspace{0.2in}
+\noindent 13. Suppose a baby was born weighing 7.2 pounds to a mother who was a
+smoker and after a gestation period lasting 37 weeks.  Find the residual for that 
+baby.  Was the baby's birth weight over- or under-predicted?  By how much?
+\vspace{0.2in}
+
+
+
+\vspace{0.2in}
+```{r}
+predict(object = birthsmokers.lm, newdata = data.frame(Gest = 37,
+                                                       Smoke = 1))
+"The baby's birth was underpredicted by 1.019987 lbs"
+```
+
+
+
+\part{}
+
+Use the \texttt{NELS} dataset.  It's a sample from a larger nationally representative longitudinal 
+dataset that measures achievement outcomes in four core subject areas: math, 
+science, reading, and history.  It also contains personal, familial, social, 
+institutional, and cultural factors that might relate to the achievement 
+outcomes.  Suppose you want to model student math achievement scores in 12th 
+grade (\texttt{achmat12}) based on socioeconomic status (\texttt{ses}), the 
+region of the country in which the student attends school (\texttt{region}), and 
+gender (\texttt{gender}).  Note that the \texttt{region} coding is as follows: 1 
+represents the northeast, 2 the north central region, 3 the south, and 4 the 
+west.  The \texttt{gender} coding is as follows: 0 represents male and 1 female.
+\vspace{0.2in}
+
+
+\noindent 1. What are the response and predictor variables?  What type of 
+variable is each -- quantitative or qualitative?
+\vspace{0.2in}
+
+```{r}
+"Predictor variables: gender (Qualitative), region (Qualitative),
+ ses (Quantitative)"
+"Response variable: achmat12 (Quantitative)"
+```
+
+
+\vspace{0.2in}
+\noindent 2. What is the regression equation?  Write it two ways -- first using
+$x$'s and $y$'s and then using the variable names.  Make sure all qualitative 
+variables are factors in \texttt{R} (all just to be safe)!
+\vspace{0.2in}
+
+
+
+\vspace{0.2in}
+```{r}
+"achmat12 = 52.3298955 + 0.3491868*ses - 0.1492133*region - 2.7346526*gender"
+"Y-hat = 52.3298955 + 0.3491868*X1 - 0.1492133*X2 - 2.7346526*X3"
+```
+
+\vspace{0.2in}
+\noindent 3. Create a residual plot.  Based on the residual plot, is the linear 
+model you fit to the data reasonable to use to model student math achievement 
+scores in $12^{\text{th}}$ grade based on socioeconomic status, the region of the 
+country in which the student attends school, and gender?  Regardless of your
+answer, continue answering the questions.
+\vspace{0.2in}
+
+
+
+\vspace{0.2in}
+
+```{r}
+nels <- read.csv(file = "C:/Users/sayee/Downloads/NELS.csv", 
+                  header = TRUE)
+nels$region <- as.factor(nels$region)
+nels$gender <- as.factor(nels$gender)
+is.factor(nels$region)
+is.factor(nels$gender)
+levels(nels$region)
+levels(nels$gender)
+
+nels.lm <- lm(achmat12 ~ ses + region + gender, data = nels)
+summary(nels.lm)
+nels.res = resid(nels.lm)
+
+coeffs <- nels.lm$coefficients
+coeffs
+plot(nels.lm$fitted.values, nels.res, 
+     ylab = "Residuals",
+     xlab = "Math Achievement Scores in 12th Grade")
+abline(0,0)
+
+"The linear model fit to the data is reasonable to use to model
+ student math achievement scores in 12th grade based on socioeconomic
+ status, region of the country in which the sudent attends school, and
+ gender because the residuals are roughly balanced."
+```
+
+\vspace{0.2in}
+\noindent 4. Predict the math achievement score for a female student in 
+$12^{\text{th}}$ grade with a socioeconomic status of 28 and who lives in the 
+northeast.  First do so by showing all of your work.  Then verify your answer 
+using the \texttt{predict()} function in \texttt{R}.  Interpret your result.
+\vspace{0.2in}
+
+
+
+\vspace{0.2in}
+```{r}
+score = 52.3298955 + 0.3491868*28 - 0.1492133 - 2.7346526
+score
+predict(object = nels.lm, newdata = data.frame(ses = 28, region = "1",
+                                               gender = "1"))
+"The math achievement score for a female student in 12th grade
+ at a school in the northeast with a socioeconomic status of 28
+ is predicted to be 59.67395"
+```
+
+\vspace{0.2in}
+\noindent 5. Predict the math achievement score for a male student in 
+$12^{\text{th}}$ grade with a socioeconomic status of 28 and who attends school 
+in the west.  First do so by showing all of your work.  Then verify your answer 
+using the \texttt{predict()} function in \texttt{R}.  Interpret your result.
+\vspace{0.2in}
+
+
+
+\vspace{0.2in}
+```{r}
+score = 52.3298955 + 0.3491868*28 - 0.1492133*4 - 2.7346526*0
+score
+predict(object = nels.lm, newdata = data.frame(ses = 28, region = "4",
+                                               gender = "0"))
+"The math achievement score for a male student in 12th grade
+ at a school in the west with a socioeconomic status of 28
+ is predicted to be 62.24763."
+```
+
+\vspace{0.2in}
+\noindent 6. Suppose a female student who attends school in the north central 
+region has a socioeconomic status of 15 and a $12^{\text{th}}$-grade math 
+achievement score of 65.  Find the residual for that student.  Was her 
+$12^{\text{th}}$-grade math achievement score over- or under-predicted?  By how 
+much?
+\vspace{0.2in}
+
+
+
+\vspace{0.2in}
+```{r}
+predict(object = nels.lm, newdata = data.frame(ses = 15, region = "2",
+                                               gender = "1"))
+"The student's math achievement score was underpredicted by 10.46538."
+```
+
+
+

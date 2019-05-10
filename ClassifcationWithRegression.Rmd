@@ -1,0 +1,412 @@
+---
+title: "Classification with Regression"
+author: "Umair Sayeed"
+fontsize: 12pt
+output: pdf_document
+urlcolor: blue
+---
+
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+\part{}
+
+Use the \texttt{Homes\_Sales} dataset.  It contains data related to NJ housing prices from 2018.  Suppose
+you want to determine whether a model that contains variables measuring the size
+of the house, the number of bedrooms in the house, and the number of bathrooms in
+the house yields accurate predictions of the price of a house in NJ.
+\vspace{0.1in}
+
+
+\vspace{0.1in}
+
+\vspace{0.1in}
+
+```{r}
+library(dplyr)
+home_sales <- read.csv("C:/Users/sayee/Downloads/Home_Sales.csv", header = TRUE)
+homesales <- select(home_sales, PRICE, BEDS, BATHS, SQFT)
+homesales <- na.omit(homesales)
+```
+
+\vspace{0.1in}
+\noindent 1. Use the holdout method (aka the validation set approach), with an 
+80/20 (training to test) split of the data, to estimate the test error using the 
+RMSE.  Report its value using the correct units.
+\vspace{0.1in}
+
+\vspace{0.1in}
+```{r}
+set.seed(31)
+indices <- sample(nrow(homesales), 4/5*nrow(homesales), replace = FALSE)
+training <- homesales[indices, ]
+test <- homesales[-indices, ]
+
+lm_homesales<- lm(PRICE ~ SQFT + BEDS + BATHS, data = training)
+
+pred <- predict(object = lm_homesales, newdata = test)
+rmse_holdout <- sqrt(mean((test$PRICE - pred)^2))
+rmse_holdout
+```
+
+\vspace{0.1in}
+\noindent 2. Use 5-fold cross-validation to estimate the test error using the 
+RMSE, and report its value using the correct units.
+\vspace{0.1in}
+
+
+\vspace{0.1in}
+```{r}
+library(caret)
+set.seed(31)
+cv_info_5 <- train(PRICE ~ BEDS + BATHS + SQFT, data = homesales, 
+  method = "lm",
+  trControl = trainControl(method = "cv", number = 5))
+cv_info_5$results$RMSE
+```
+
+\vspace{0.1in}
+\noindent 3. Use 10-fold cross-validation to estimate the test error using the 
+RMSE, and report its value using the correct units.
+\vspace{0.1in}
+
+
+
+\vspace{0.1in}
+```{r}
+set.seed(31)
+cv_info_10 <- train(PRICE ~ BEDS + BATHS + SQFT, data = homesales, 
+                 method = "lm",
+                 trControl = trainControl(method = "cv", number = 10))
+cv_info_10$results$RMSE
+```
+
+\vspace{0.1in}
+\noindent 4. Use leave-one-out cross-validation to estimate the test error using 
+the RMSE, and report its value using the correct units.
+\vspace{0.1in}
+
+
+
+\vspace{0.1in}
+```{r}
+set.seed(31)
+loocv_info <- train(PRICE ~ BEDS + BATHS + SQFT, data = homesales, 
+                    method = "lm",
+                    trControl = trainControl(method = "LOOCV"))
+loocv_info$results$RMSE
+```
+
+\vspace{0.1in}
+\noindent 5. Comment on the predictive ability of this regression model using the 
+results of any of the validation methods used previously.
+\vspace{0.1in}
+
+```{r}
+rmse_holdout
+cv_info_5$results$RMSE
+cv_info_10$results$RMSE
+loocv_info$results$RMSE
+```
+
+\vspace{0.1in}
+\noindent 6. Regardless of your answer to problem 5, write the equation of the 
+\textit{final} model you would use to make predictions for new data, assuming you
+were happy with its predictive ability.  Remember this model should be fit using 
+the \textit{entire} dataset (i.e., not just a training set).
+\vspace{0.1in}
+
+
+
+\vspace{0.1in}
+```{r}
+#home_sales is the original dataset.
+lm_info <- lm(PRICE ~ BEDS + BATHS + SQFT, data = home_sales)
+lm_info$coefficients
+```
+
+
+
+
+\part{}
+
+Use the \texttt{Heart} dataset.  It contains data related to cardiovascular health for about 300 people. 
+You want to find a classification method that accurately predicts whether or not 
+someone has heart disease (\texttt{AHD}) based on age (\texttt{Age}), sex 
+(\texttt{Sex}), resting blood pressure (\texttt{RestBP}), and cholesterol level
+(\texttt{Chol}).
+
+\vspace{0.1in}
+
+
+\vspace{0.1in}
+
+```{r}
+heart <- read.csv("C:/Users/sayee/Downloads/Heart.csv", header = TRUE)
+heart$Sex <- as.factor(heart$Sex)
+heart$AHD <- as.factor(heart$AHD)
+set.seed(31)
+
+hearts <- select(heart, AHD, Age, Sex, RestBP, Chol)
+heart_sub <- na.omit(hearts)
+```
+
+\vspace{0.1in}
+
+\vspace{0.1in}
+
+```{r}
+indices <- sample(nrow(heart_sub), 3/4*nrow(heart_sub), replace = FALSE)
+training <- heart_sub[indices, ]
+test <- heart_sub[-indices, ]
+```
+
+\vspace{0.1in}
+\noindent 2. Run 5-fold cross-validation on the training data to find the optimal 
+$k$ for $k$-NN.  Then use $k$-NN with this optimal $k$, along with the test data, 
+to calculate the test error.  Measure this test error using the accuracy and 
+report the value.
+\vspace{0.1in}
+
+
+
+\vspace{0.1in}
+```{r}
+set.seed(31)
+cv_info_KNN <- train(AHD ~ Age + Chol + RestBP + Sex,
+                     data = training,
+                     method = "knn",
+                     trControl = trainControl(method = "cv", number = 5))
+cv_info_KNN
+predicted_KNN <- predict(object = cv_info_KNN, newdata = test)
+accuracy_KNN <- sum(test$AHD == predicted_KNN)/nrow(test)
+accuracy_KNN
+```
+
+\vspace{0.2in}
+\noindent 3. Fit a logistic regression model using the training data.  Then use 
+the fitted model, along with the test data, to calculate the test error.  Measure 
+this test error using the accuracy and report the value.
+\vspace{0.1in}
+
+
+
+\vspace{0.1in}
+```{r}
+set.seed(31)
+info_LR <- train(AHD ~ Age + Chol + RestBP + Sex, 
+                 data = training,
+                 method = "glm",
+                 family = "binomial",
+                 trControl = trainControl(method = "none"))
+predicted_LR <- predict(object = info_LR, newdata = test)
+accuracy_LR <- sum(test$AHD == predicted_LR)/nrow(test)
+accuracy_LR
+```
+
+\vspace{0.1in}
+\noindent 4. Run LDA using the training data.  Then use the test data to 
+calculate the test error.  Measure this test error using the accuracy and report 
+the value.
+\vspace{0.1in}
+
+
+
+\vspace{0.1in}
+```{r}
+set.seed(31)
+info_LDA <- train(AHD ~ Age + Chol + RestBP + Sex,
+                  data = training,
+                  method = "lda",
+                  trControl = trainControl(method = "none"),
+                  preProcess = c("BoxCox", "center", "scale"))
+predicted_LDA <- predict(object = info_LDA, newdata = test)
+accuracy_LDA <- sum(test$AHD == predicted_LDA)/nrow(test)
+accuracy_LDA
+```
+
+\vspace{0.1in}
+\noindent 5. Run QDA using the training data.  Then use the test data to 
+calculate the test error.  Measure this test error using the accuracy and report 
+the value.
+\vspace{0.1in}
+
+
+
+\vspace{0.1in}
+```{r}
+set.seed(31)
+info_QDA <- train(AHD ~ Age + Chol + RestBP + Sex,
+                  data = training,
+                  method = "qda",
+                  trControl = trainControl(method = "none"),
+                  preProcess = c("BoxCox", "center", "scale"))
+predicted_QDA <- predict(object = info_QDA, newdata = test)
+accuracy_QDA <- sum(test$AHD == predicted_QDA)/nrow(test)
+accuracy_QDA
+```
+
+\vspace{0.1in}
+\noindent 6. Run Naive Bayes (where the quantitative predictors are assumed to be
+normally distributed -- see the in-class code for how to enforce this) using the 
+training data.  Then use the test data to calculate the test error.  Measure this
+test error using the accuracy and report the value.
+\vspace{0.1in}
+
+
+
+\vspace{0.1in}
+```{r}
+set.seed(31)
+info_NB <- train(AHD ~ Age + Chol + RestBP + Sex,
+                 data = training,
+                 method = "nb",
+                 trControl = trainControl(method = "none"),
+                 preProcess = c("BoxCox", "center", "scale"),
+                 tuneGrid = data.frame(fL = 0, usekernel = FALSE, adjust = 1))
+predicted_NB <- predict(object = info_NB, newdata = test)
+accuracy_NB <- sum(test$AHD == predicted_NB)/nrow(test)
+accuracy_NB
+```
+
+\vspace{0.1in}
+\noindent 7. Examine the accuracies obtained in problems 2 -- 6.  Does one 
+classification method substantially outperform the others?  Do any of them 
+accurately predict whether or not someone has heart disease?  Explain.
+\vspace{0.1in}
+
+```{r}
+accuracy_KNN  # k-NN w/ k = 7
+accuracy_LR  # logistic regression
+accuracy_LDA  # LDA
+accuracy_QDA  # QDA
+accuracy_NB   # Naive Bayes
+```
+
+
+\part{}
+
+Use the \texttt{College} dataset.  It contains data on over 700 colleges and universities 
+throughout the U.S. for a specific year.  You want to build a model that 
+accurately predicts the number of students who enrolled in the school that year 
+(\texttt{Enroll}) using the other variables in the dataset (graduation rate, 
+student/faculty ratio, etc.).
+\vspace{0.1in}
+
+
+\vspace{0.01in}
+
+\vspace{0.1in}
+
+```{r}
+library(ISLR)
+library(glmnet)
+all_y <- College$Enroll
+all_x <- model.matrix(Enroll ~ ., data = College)[, -1]
+
+set.seed(31)
+indices <- sample(1:nrow(College), 3/4*nrow(College), replace = FALSE)
+
+test_x <- all_x[indices, ]
+test_y <- all_y[indices]  
+training_x <- all_x[-indices, ]
+training_y <- all_y[-indices]
+```
+
+\vspace{0.1in}
+\noindent 2. Fit a ridge regression model using the training data and with the
+optimal $\lambda$ found via 5-fold cross-validation (remember: only use the 
+training data here!).  Then use this fitted model (with the optimal $\lambda$), 
+along with the test data, to calculate the test error.  Measure this test error 
+using the RMSE and report its value using the correct units.
+\vspace{0.1in}
+
+
+
+\vspace{0.1in}
+```{r}
+set.seed(31)
+cv_ridge <- cv.glmnet(x = training_x, y = training_y, alpha = 0)
+best_lambda_ridge <- cv_ridge$lambda.min
+best_lambda_ridge
+pred_ridge <- predict(object = cv_ridge, s = best_lambda_ridge, newx = test_x)
+rmse_ridge <- sqrt(mean((pred_ridge - test_y)^2))
+rmse_ridge
+```
+
+\vspace{0.1in}
+\noindent 3. Fit a LASSO model using the training data and with the optimal 
+$\lambda$ found via 5-fold cross-validation (remember: only use the training data 
+here!).  Then use this fitted model (with the optimal $\lambda$), along with the 
+test data, to calculate the test error.  Measure this test error using the RMSE
+and report its value using the correct units.
+\vspace{0.1in}
+
+
+
+\vspace{0.1in}
+```{r}
+set.seed(31)
+cv_lasso <- cv.glmnet(x = training_x, y = training_y, alpha = 1)
+best_lambda_lasso <- cv_lasso$lambda.min
+best_lambda_lasso
+pred_lasso <- predict(object = cv_lasso, s = best_lambda_lasso, newx = test_x)
+rmse_lasso <- sqrt(mean((pred_lasso - test_y)^2))
+rmse_lasso
+```
+
+\vspace{0.1in}
+\noindent 4. Fit a least squares regression model using the training data.  Then 
+use this fitted model, along with the test data, to calculate the test error. 
+Measure this test error using the RMSE and reports its value using the correct 
+units.
+\vspace{0.1in}
+
+\vspace{0.1in}
+```{r}
+pred_OLS <- predict(object = cv_ridge, s = 0, newx = test_x)
+College
+pred_OLS
+rmse_OLS <- sqrt(mean((pred_OLS - test_y)^2))
+rmse_OLS
+```
+
+\vspace{0.1in}
+\noindent 5. Examine the RMSEs obtained in problems 2 -- 4.  Does one model 
+substantially outperform the others?  Do any of the models accurately predict the 
+number of students who enrolled in the schools?  Explain.
+\vspace{0.1in}
+
+```{r}
+rmse_ridge #Ridge
+rmse_lasso #Lasso
+rmse_OLS #OLS
+```
+
+
+\vspace{0.1in}
+\noindent 6. Suppose you want to predict the number of students who enrolled in a
+school not included in this dataset.  Fit a final model using the method you 
+found performed the best in problem 5 now using the data in the 
+\underline{entire} dataset.  Then print the coefficients of the final model.  You 
+do not need to write the equation of this final model!
+\vspace{0.1in}
+
+```{r}
+all_y <- College$Enroll
+all_x <- model.matrix(Enroll ~ ., data = College)[, -1]
+
+set.seed(31)
+cv_lasso <- cv.glmnet(x = all_x, y = all_y, alpha = 1)
+best_lambda_lasso <- cv_lasso$lambda.min
+
+glmnet_lasso <- glmnet(x = all_x, y = all_y, alpha = 1, lambda = best_lambda_lasso)
+lasso_coeffs <- coef(glmnet_lasso)
+lasso_coeffs
+```
+
+
+

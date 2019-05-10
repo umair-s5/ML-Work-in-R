@@ -1,0 +1,306 @@
+---
+title: "Final - Regression and Classification"
+author: "Umair Sayeed"
+fontsize: 12pt
+output: pdf_document
+urlcolor: blue
+---
+
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, fig.height = 4, 
+  fig.width = 7, fig.align = "center"
+)
+```
+
+\part{}
+
+In Part I, we have a supervised learning scenario where the response is 
+qualitative.  The \texttt{NELS.Final.Project} dataset, which can be found on 
+Moodle, will be used for all of Part I.  Recall it's a sample from a larger nationally representative longitudinal dataset that measures achievement outcomes 
+in four core subject areas: math, science, reading, and history.  It also 
+contains personal, familial, social, institutional, and cultural factors that 
+might relate to the achievement outcomes.
+
+You want to find method(s)/model(s) that accurately predict whether or not a 
+student has a self-concept score in $12^{\text{th}}$ grade of at least 31, which 
+is the median score for the students in the dataset.  The variable is 
+\texttt{slfcnc12\_31}, where "Yes" indicates the student has a
+$12^{\text{th}}$-grade self-concept score that's 31 or higher, and "No" indicates 
+the student has a $12^{\text{th}}$-grade self-concept score that's under 31.
+The self-concept scores are measured on a scale of 0 to 43, where lower scores 
+indicate lower self concept and higher scores indicate higher self concept. 
+They're based on the sum of responses to four questionnaire questions: (1) "I 
+feel I am a person of worth;" (2) "I feel good about myself;" (3) I am able to do
+things as well as most other people"; and (4) "On the whole, I am satisfied with 
+myself."  
+
+Suppose you'll consider the following variables as candidate predictors:
+
+(1) \texttt{urban}, which indicates the type of area in which the student lived: 
+1 = urban, 2 = suburban, and 3 = rural,
+(2) \texttt{region}, which indicates the region of the country in which the 
+student lived: 1 = northeast, 2 = north central, 3 = south, and 4 = west,
+(3) \texttt{gender}, where 0 = male and 1 = female,
+(4) \texttt{famsize}, which measures the number of immediate family members,
+(5) \texttt{hsprog}, which indicates the type of high school program: 1 = 
+rigorous academic, 2 = academic, 3 = some vocational, and 4 = other,
+(6) \texttt{parmarl8}, which indicates the student's parents' marital status when
+the student was in $8^{\text{th}}$ grade: 1 = divorced, 2 = widowed, 3 = 
+separated, 4 = never married, 5 = marriage-like relationship, and 6 = married,
+(7) \texttt{achrdg12}, which measures the student's reading achievement score in
+$12^{\text{th}}$ grade (not out of 100),
+(8) \texttt{achmat12}, which measures the student's math achievement score in
+$12^{\text{th}}$ grade (not out of 100),
+(9) \texttt{achsci12}, which measures the student's science achievement score in
+$12^{\text{th}}$ grade (not out of 100),
+(10) \texttt{cigarett}, which indicates whether or not the student has ever 
+smoked a cigarette: 1 = yes and 0 = no,
+(11) \texttt{alcbinge}, which indicates whether or not the student has ever 
+binged on alcohol: 1 = yes and 0 = no,
+(12) \texttt{marijuan}, which indicates whether or not the student has ever 
+smoked marijuana: 1 = yes and 0 = no, and 
+(13) \texttt{ses}, which measures the student's socioeconomic status.
+
+\vspace{0.1in}
+
+You're tasked with comparing the abilities of all classification methods (and
+classification tree-based methods) we've discussed in this course at predicting 
+whether or not a student has a self-concept score in $12^{\text{th}}$ grade of at
+least 31, using the variables specified above.  You must then explain whether or 
+not you found method(s)/model(s) that seem to make accurate predictions. 
+Reminder: make sure to use appropriate validation procedures when necessary, as 
+well as either test accuracy or test misclassification rate when making 
+comparisons.  \underline{Fully explain your findings.}
+\vspace{0.2in}
+
+
+
+\vspace{0.2in}
+
+```{r}
+library(caret)
+library(dplyr)
+nels <- read.csv("C:/Users/sayee/Downloads/NELS.Final.Project.csv", header = TRUE)
+nels$urban = as.factor(nels$urban)
+nels$region = as.factor(nels$region)
+nels$gender = as.factor(nels$gender)
+nels$hsprog = as.factor(nels$hsprog)
+nels$parmarl8 = as.factor(nels$parmarl8)
+nels$cigarett = as.factor(nels$cigarett)
+nels$alcbinge = as.factor(nels$alcbinge)
+nels$marijuan = as.factor(nels$marijuan)
+nels$slfcnc12_31 = as.factor(nels$slfcnc12_31)
+
+nels_trim <- select(nels, slfcnc12_31, urban, region, gender, famsize, hsprog,
+                    parmarl8, achrdg12, achmat12, achsci12, cigarett,
+                    alcbinge, marijuan, ses)
+nels_noNA = na.omit(nels_trim)
+str(nels_noNA)
+
+set.seed(2)
+indices <- sample(nrow(nels_noNA), 1/4*nrow(nels_noNA), replace = FALSE)
+test <- nels_noNA[indices, ]
+training <- nels_noNA[-indices, ]
+
+#CV w/ kNN
+set.seed(2)
+cv_info <- train(slfcnc12_31 ~ ., data = training,
+                 method = "knn",
+                trControl = trainControl(method = "cv", number = 5))
+
+predicted_kNN <- predict(object = cv_info, newdata = test)
+accuracy_kNN <- sum(test$slfcnc12_31 == predicted_kNN)/nrow(test)
+accuracy_kNN
+
+#Logistic Regression
+info_LR <- train(slfcnc12_31 ~ ., data = training,
+                 method = "glm",
+                 family = "binomial",
+                 trControl = trainControl(method = "none"))
+
+predicted_LR <- predict(object = info_LR, newdata = test)
+accuracy_LR <- sum(test$slfcnc12_31 == predicted_LR)/nrow(test)
+accuracy_LR
+
+#LDA
+info_LDA <- train(slfcnc12_31 ~ ., data = training,
+                  method = "lda",
+                  trControl = trainControl(method = "none"),
+                  preProcess = c("BoxCox", "center", "scale"))
+
+predicted_LDA <- predict(object = info_LDA, newdata = test)
+accuracy_LDA <- sum(test$slfcnc12_31 == predicted_LDA)/nrow(test)
+accuracy_LDA
+
+#QDA
+info_QDA <- train(slfcnc12_31 ~ ., data = training,
+                  method = "qda",
+                  trControl = trainControl(method = "none"),
+                  preProcess = c("BoxCox", "center", "scale"))
+
+predicted_QDA <- predict(object = info_QDA, newdata = test)
+accuracy_QDA <- sum(test$slfcnc12_31 == predicted_QDA)/nrow(test)
+accuracy_QDA
+
+#Naive Bayes
+info_NB <- train(slfcnc12_31 ~ .,
+                 data = training,
+                 method = "nb",
+                 trControl = trainControl(method = "none"),
+                 preProcess = c("BoxCox", "center", "scale"),
+                 tuneGrid = data.frame(fL = 0, usekernel = FALSE, adjust = 1))
+
+predicted_NB <- predict(object = info_NB, newdata = test)
+accuracy_NB <- sum(test$slfcnc12_31 == predicted_NB)/nrow(test)
+accuracy_NB
+
+```
+
+```{r}
+#Classification Tree
+library(rpart.plot) 
+set.seed(2)
+
+tree_fit <- train(slfcnc12_31 ~ ., data = training,
+                  method = "rpart",
+                  trControl = trainControl(method = "cv", number = 5),
+                  parms = list(split = "information"),
+                  tuneLength = 10)
+optimal_alpha <- tree_fit$bestTune
+predicted <- predict(object = tree_fit, newdata = test)
+accuracy_tree <- sum(test$slfcnc12_31 == predicted)/nrow(test)
+accuracy_tree
+```
+```{r}
+#Bagging - Qualitative
+set.seed(2)
+bag_fit <- train(slfcnc12_31 ~ ., data = training,
+                       method = "rf",
+                       trControl = trainControl(method = "none"),
+                       importance = TRUE,
+                       ntree = 1000,
+                       tuneGrid = data.frame(mtry = ncol(training)-1))
+
+bag_fit$finalModel
+predicted <- predict(object = bag_fit, newdata = test)
+accuracy_bag <- sum(test$slfcnc12_31 == predicted)/nrow(test)
+accuracy_bag
+
+
+#Random Forests- Qualitative
+set.seed(2)
+rf_fit <- train(slfcnc12_31 ~ ., data = training,
+                method = "rf",
+                trControl = trainControl(method = "none"),
+                importance = TRUE,
+                ntree = 1000)
+
+rf_fit$finalModel
+predicted <- predict(object = rf_fit, newdata = test)
+accuracy_rf <- sum(test$slfcnc12_31 == predicted)/nrow(test)
+accuracy_rf
+```
+
+\part{}
+
+Here we have a supervised learning scenario where the response is 
+quantitative.
+
+\vspace{0.1in}
+
+You're tasked with comparing the abilities of all regression methods (and
+regression tree-based methods) we've discussed in this course at predicting the
+response variable of your choosing based on other variables in your dataset.  You
+must then explain whether or not you found a method(s) that seems to make accurate
+predictions.  Reminder: make sure to use appropriate validation procedures when
+necessary, as well as an appropriate measure of the test error when making
+comparisons.  \underline{Fully explain your findings.}
+
+\vspace{0.1in}
+\vspace{0.2in}
+\vspace{0.2in}
+
+```{r}
+library(glmnet)
+
+fifa <- read.csv("C:/Users/sayee/Downloads/fifa19/fifa19.csv", header = TRUE)
+fifa <- select(fifa, SkillMoves, WeakFoot, Finishing, Composure, ShortPassing,
+               LongPassing, Dribbling, Reactions, Positioning, Stamina,
+               BallControl, SprintSpeed, Acceleration, Balance, Overall)
+fifa <- na.omit(fifa)
+str(fifa)
+
+all_y <- fifa$Overall
+all_x <- model.matrix(Overall ~ ., data = fifa)[, -1]
+set.seed(2)
+indices <- sample(1:nrow(fifa), 3/4*nrow(fifa), replace = FALSE)
+
+test_x <- all_x[indices, ]
+test_y <- all_y[indices]  
+training_x <- all_x[-indices, ]
+training_y <- all_y[-indices]
+
+#Ridge Regression
+set.seed(2)
+cv_ridge <- cv.glmnet(x = training_x, y = training_y, alpha = 0)
+best_lambda_ridge <- cv_ridge$lambda.min
+pred_ridge <- predict(object = cv_ridge, s = best_lambda_ridge, newx = test_x)
+rmse_ridge <- sqrt(mean((pred_ridge - test_y)^2))
+rmse_ridge
+
+#LASSO
+set.seed(2)
+cv_lasso <- cv.glmnet(x = training_x, y = training_y, alpha = 1)
+best_lambda_lasso <- cv_lasso$lambda.min
+pred_lasso <- predict(object = cv_lasso, s = best_lambda_lasso, newx = test_x)
+rmse_lasso <- sqrt(mean((pred_lasso - test_y)^2))
+rmse_lasso
+
+#Least Squares Regression
+pred_OLS <- predict(object = cv_ridge, s = 0, newx = test_x)
+rmse_OLS <- sqrt(mean((pred_OLS - test_y)^2))
+rmse_OLS
+
+library(randomForest)
+indices <- sample(nrow(fifa), 3/4*nrow(fifa), replace = FALSE)
+training <- fifa[indices, ]
+test <- fifa[-indices, ]
+
+#Regression Tree
+set.seed(2)
+tree_fit <- train(Overall ~ ., data = training,
+                  method = "rpart",
+                  trControl = trainControl(method = "cv", number = 5),
+                  parms = list(split = "information"),
+                  tuneLength = 10)
+optimal_alpha <- tree_fit$bestTune
+tree_pred <- predict(object = tree_fit, newdata = test)
+rmse_tree <- sqrt(mean((test$Overall - tree_pred)^2))
+rmse_tree
+
+#Bagging - Quantitative
+set.seed(2)
+bag_fit <- train(Overall ~ ., data = training,
+                 method = "rf",
+                 trControl = trainControl(method = "none"),
+                 importance = TRUE,
+                 ntree = 1000,
+                 tuneGrid = data.frame(mtry = ncol(training)-1))
+bag_pred <- predict(object = bag_fit, newdata = test)
+rmse_bag <- sqrt(mean((test$Overall - bag_pred)^2))
+rmse_bag
+#Random Forests - Quantitative
+set.seed(2)
+rf_fit <- train(Overall ~ ., data = training,
+                method = "rf",
+                trControl = trainControl(method = "none"),
+                importance = TRUE,
+                ntree = 1000)
+rf_pred <- predict(object = rf_fit, newdata = test)
+rmse_rf <- sqrt(mean((test$Overall - rf_pred)^2))
+rmse_rf
+```
+
+
+

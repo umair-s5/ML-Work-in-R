@@ -1,0 +1,286 @@
+---
+title: "Linear Regression"
+author: "Umair Sayeed"    
+fontsize: 12pt
+output: pdf_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+\part{}
+
+Use the \texttt{NJ\_Homes} dataset.  It contains data related to NJ housing prices from 2018.  Suppose 
+you want to model the selling price of a house based on the size of the house 
+(measured in square feet).
+\vspace{0.2in}
+
+\noindent 1. What are the response and predictor variables?  What type of 
+variable is each -- quantitative or qualitative?
+\vspace{0.2in}
+
+
+\vspace{0.2in}
+```{r}
+"Reponse variable: Selling Price of House ($) = Quantitative
+Predictor variable: Size of House (square feet) = Quantitative"
+```
+
+\vspace{0.2in}
+\noindent 2. Create a scatterplot with the correct variable on each axis and with 
+the regression line added to the plot.
+\vspace{0.2in}
+
+```{r}
+
+homes <- read.csv(file = "C:/Users/sayee/Downloads/NJ_Homes.csv",
+                  header = TRUE)
+lm_info <- lm(PRICE ~ SQFT, data = homes)
+coeffs <- lm_info$coefficients
+plot(homes$SQFT, homes$PRICE, pch = 19, cex.lab = 1.2, cex.axis = 1, 
+     cex = 1, xlab = "Size of House (square feet)", 
+     ylab = "Selling Price of House ($)")
+abline(a = coeffs[1], b = coeffs[2], lwd = 1)
+```
+
+\vspace{0.2in}
+\noindent 3. Is linear regression an appropriate tool to use to model selling 
+price based on size?  Why or why not?
+\vspace{0.2in}
+
+
+\vspace{0.2in}
+```{r}
+"Linear regression requires a linear relationship 
+ between variables, where the dependent/response
+ variable is quantitative, hence its use is appropriate
+ to model a home's selling price based on size here."
+
+```
+
+\vspace{0.2in}
+\noindent 4. What is the regression equation?
+\vspace{0.2in}
+
+
+\vspace{0.2in}
+```{r}
+lm_info
+"predicted price = slope*(house size in sq. ft.) + y-intercept"
+"Y = 261.4x - 26339"
+```
+
+\vspace{0.2in}
+\noindent 5. Interpret the regression coefficients.  If it isn't appropriate to 
+interpret either of them, explain why.
+\vspace{0.2in}
+\vspace{0.2in}
+```{r}
+lm_info
+"Slope: For every unit increase in the value
+ of the predictor variable, house size (sq. ft.),
+ the price of the house will increase by $261.4321
+ on average.
+ Y-Int.: It is not appropriate to interpret the
+ y-intercept because X = Size of House (square feet) = 0
+ is not a possible condition for houses."
+
+```
+
+\vspace{0.2in}
+\noindent 6. Predict the selling price of a 2,750 square foot house in NJ.  First 
+do so by showing all of your work.  Then verify your answer using the 
+\texttt{predict()} function in \texttt{R}.  Interpret your result.
+\vspace{0.2in}
+
+
+\vspace{0.2in}
+```{r}
+Y <- 261.4*2750 - 26338.9514
+Y
+predict(object = lm_info, newdata = data.frame(SQFT = 2750))
+"A house that covers 2750 sq. ft. is predicted to cost $692599.4."
+```
+
+\vspace{0.2in}
+\noindent 7. A 2,750 square foot house in NJ just went on the market.  Use a 95\% 
+prediction interval to predict the selling price of the house.  Interpret your 
+result and comment on its usefulness for predicting.  Note that the lowerbound
+should be negative here.
+\vspace{0.2in}
+
+
+\vspace{0.2in}
+```{r}
+predict(object = lm_info, newdata = data.frame(SQFT = 2750), interval = "prediction")
+"We predict with 95% confidence that the price of a house
+ that covers 2750 sq. ft. is between $-308778.6 and $1693977.
+ The prediction interval in this case is not very useful for
+ predicting because the interval is so large at 95% confidence."
+```
+
+\vspace{0.2in}
+\noindent 8. Suppose there's a 2,300 square foot house in the dataset that sold 
+for $\$800,000$.  Find the residual for that house.  Was the selling price over-
+or under-predicted?  By how much?
+\vspace{0.2in}
+
+
+\vspace{0.2in}
+```{r}
+predict(object = lm_info, newdata = data.frame(SQFT = 2300))
+"actual Y - predicted Y = $800000 - $574955 = Residual = $225045. 
+ The selling-price was underpredicted by $225045."
+```
+
+\vspace{0.2in}
+\noindent 9. Find and interpret the residual standard error.
+\vspace{0.2in}
+
+
+\vspace{0.2in}
+```{r}
+summary(lm_info)
+"The price of houses sold given their area in sq. ft.
+ deviates from the regression line by $507900 on average."
+```
+
+
+\part{}
+
+Use the \texttt{iqsize} dataset.  It contains data related to IQ and physical characteristics of a
+group of people.  Suppose you want to model IQ (\texttt{PIQ}) based on the size 
+of a person's brain (\text{Brain}).
+\vspace{0.2in}
+
+\noindent 1. What are the response and predictor variables?  What type of 
+variable is each -- quantitative or qualitative?
+\vspace{0.2in}
+
+```{r}
+"Reponse variable: PIQ = Quantitative
+Predictor variable: Brain (units of volume) = Quantitative"
+
+```
+
+\vspace{0.2in}
+\noindent 2. Create a scatterplot with the correct variable on each axis and with 
+the regression line added to the plot.
+\vspace{0.2in}
+
+```{r}
+  brains <- read.table(file = "C:/Users/sayee/Downloads/iqsize.txt",
+                    header = TRUE)
+  lm_info <- lm(PIQ ~ Brain, data = brains)
+  coeffs <- lm_info$coefficients
+  plot(brains$Brain, brains$PIQ, pch = 19, cex.lab = 1.2, cex.axis = 1, 
+       cex = 1, xlab = "Size of Brain (units of volume)", 
+       ylab = "IQ")
+  abline(a = coeffs[1], b = coeffs[2], lwd = 1)
+
+```
+
+\vspace{0.2in}
+\noindent 3. Is linear regression an appropriate tool to use to model IQ based on 
+brain size?  Why or why not?
+\vspace{0.2in}
+
+```{r}
+"Since the response variable is quantitative and there doesn't
+ appear to be a clear curve present, linear regression is justified
+ as an appropriate tool to model IQ based on brain size."
+
+```
+
+\vspace{0.2in}
+\noindent 4. What is the regression equation?
+\vspace{0.2in}
+
+
+\vspace{0.2in}
+```{r}
+lm_info
+"predicted iq = slope*(size of brain) + y-intercept"
+"Y = 1.177x + 4.652"
+
+```
+
+\vspace{0.2in}
+\noindent 5. Interpret the regression coefficients.  If it isn't appropriate to 
+interpret either of them, explain why.
+\vspace{0.2in}
+
+```{r}
+lm_info
+"Slope: For every unit increase in brain size (units of volume), 
+ PIQ increases by 1.177 IQ points.
+ Y-Int.: It would not be appropriate to interpret this coefficient 
+ because X = Size of Brain (vol. in units) = 0 
+ is not a possible condition."
+```
+
+\vspace{0.2in}
+\noindent 6. Predict the IQ of a person with a brain size of 95 units.  First do 
+so by showing all of your work.  Then verify your answer using the 
+\texttt{predict()} function in \texttt{R}.  Interpret your result.
+\vspace{0.2in}
+
+
+\vspace{0.2in}
+```{r}
+Y <- 1.177*95 + 4.652
+Y
+predict(object = lm_info, newdata = data.frame(Brain = 95))
+"A brain that is 95 cubic units is predicted to have an IQ of 116.43."
+```
+
+\vspace{0.2in}
+\noindent 7. Use a 95\% prediction interval to predict the IQ of a person with a
+brain size of 95 units.  Interpret your result and comment on its usefulness for
+predicting.
+\vspace{0.2in}
+
+
+\vspace{0.2in}
+```{r}
+predict(object = lm_info, newdata = data.frame(Brain = 95), interval = "prediction")
+"We predict with 95% confidence that the IQ of a brain that is 95 cubic units
+ in volume is between 72.64535 and 160.2147 IQ points. 
+ A vast majority of people fall between an IQ score of 70 and 130,
+ so the prediction interval in this case is not very useful for
+ predicting because the interval is so large."
+
+```
+
+\vspace{0.2in}
+\noindent 8. Suppose there's a person with an IQ of 100 and a brain size of 105
+units.  Find the residual for that person.  Was their IQ over- or 
+under-predicted?  By how much?
+\vspace{0.2in}
+
+
+\vspace{0.2in}
+```{r}
+predict(object = lm_info, newdata = data.frame(Brain = 105))
+"actual Y - predicted Y = 100 - 128.1961 = Residual = -29.1961. 
+ The selling-price was overpredicted by 29.1961 IQ points."
+
+```
+
+\vspace{0.2in}
+\noindent 9. Find and interpret the residual standard error.
+\vspace{0.2in}
+
+
+\vspace{0.2in}
+```{r}
+summary(lm_info)
+"The IQ of a brain given its volume deviates from
+ the regression line by 21.21 IQ points on average."
+
+```
+
+
+

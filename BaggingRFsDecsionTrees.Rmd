@@ -1,0 +1,336 @@
+---
+title: "Bagging, Random Forests, Decsion Trees"
+author: "Umair Sayeed"
+fontsize: 12pt
+output: pdf_document
+urlcolor: blue
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.height = 4, fig.width = 7, 
+  fig.align = "center"
+)
+```
+
+
+\part{}
+
+Use the \texttt{Boston} dataset, which comes with the \texttt{MASS} package in 
+\texttt{R}.  It contains housing data collected 
+in the 1970 census for homes in about 500 Boston census tracts.  You want to be 
+able to predict the median home value (\texttt{medv}, measured in \$1,000s) in 
+1970 in a Boston census tract.  Include all of the other variables in the dataset 
+as candidate predictors.  Look at the help documentation to learn more about 
+them.
+
+First convert any qualitative variables that aren't already factors to factors, 
+if necessary.  Then remove any rows with missing values, if there are any.  The 
+resulting dataset will be considered your "entire" dataset for the rest of this 
+part.
+\vspace{0.1in}
+
+```{r}
+library(MASS)
+library(dplyr)       
+library(caret)      
+library(rpart.plot)
+library(randomForest)
+Boston$chas <- as.factor(Boston$chas)
+Boston <- na.omit(Boston)
+```
+
+\vspace{0.1in}
+\noindent 1. Split the entire dataset into a training set and a test set.  Let's 
+use a 75/25 (training to test) split here.  You don't need to write anything up
+for this problem.
+\vspace{0.1in}
+
+```{r}
+indices <- sample(nrow(Boston), 3/4*nrow(Boston), replace = FALSE)
+training <- Boston[indices, ]
+test <- Boston[-indices, ]
+```
+
+\vspace{0.1in}
+\noindent 2. Fit a regression tree to the training set.  Use 5-fold 
+cross-validation to find the optimal $\alpha$.  Then use the subtree that 
+corresponds to the optimal $\alpha$, along with the test data, to estimate the 
+test accuracy.  Report the RMSE using the correct units.
+\vspace{0.1in}
+
+
+
+\vspace{0.1in}
+```{r}
+set.seed(31)
+tree_fit <- train(medv ~ ., data = training,
+                  method = "rpart",
+                  trControl = trainControl(method = "cv", number = 5),
+                  
+                  parms = list(split = "information"),
+                  tuneLength = 10
+                  )
+optimal_alpha <- tree_fit$bestTune
+tree_pred <- predict(object = tree_fit, newdata = test)
+rmse_tree <- sqrt(mean((test$medv - tree_pred)^2))
+rmse_tree
+```
+
+\vspace{0.1in}
+\noindent 3. Plot the final regression tree from problem 2 (i.e., the one with 
+the optimal $\alpha$).  Choose any two of the leaves and interpret them.
+\vspace{0.1in}
+
+
+
+\vspace{0.1in}
+```{r}
+prp(tree_fit$finalModel, box.palette = "Blues")
+```
+
+
+\vspace{0.1in}
+\noindent 4. Run the bagging procedure and report the value you obtain for the 
+test RMSE using the correct units.
+\vspace{0.1in}
+
+
+\vspace{0.1in}
+```{r}
+set.seed(31)
+bag_fit <- train(medv ~ ., data = training,
+                 method = "rf",
+                 trControl = trainControl(method = "none"),
+                 importance = TRUE,
+                 ntree = 1000,
+                 tuneGrid = data.frame(mtry = ncol(training)-1)
+)
+bag_pred <- predict(object = bag_fit, newdata = test)
+rmse_bag <- sqrt(mean((test$medv - bag_pred)^2))
+rmse_bag
+```
+
+\vspace{0.1in}
+\noindent 5. Determine which predictors are most important in predicting the 
+median value of a home in the Boston suburbs (in 1970) when using bagging.
+\vspace{0.1in}
+
+
+
+\vspace{0.1in}
+```{r}
+importance(bag_fit$finalModel)
+```
+
+\vspace{0.1in}
+\noindent 6. Use random forests and report the value you obtain for the test RMSE 
+using the correct units.
+\vspace{0.1in}
+
+
+
+\vspace{0.1in}
+```{r}
+set.seed(31)
+rf_fit <- train(medv ~ ., data = training,
+                method = "rf",
+                trControl = trainControl(method = "none"),
+                importance = TRUE,
+                ntree = 1000
+)
+rf_pred <- predict(object = rf_fit, newdata = test)
+rmse_rf <- sqrt(mean((test$medv - rf_pred)^2))
+rmse_rf
+```
+
+\vspace{0.1in}
+\noindent 7. Determine which predictors are most important in predicting the 
+median value of a home in the Boston suburbs (in 1970) when using random forests.
+\vspace{0.1in}
+
+
+
+\vspace{0.1in}
+```{r}
+importance(rf_fit$finalModel)
+```
+
+\vspace{0.1in}
+\noindent 8. Compare the predictive abilities of the three procedures used -- a 
+single regression tree (with optimal pruning), bagging, and random forests -- by 
+referring to the RMSEs obtained in problems 2, 4, and 6.
+\vspace{0.1in}
+
+```{r}
+rmse_bag
+rmse_rf
+rmse_tree
+```
+
+
+\part{}
+
+Use the \texttt{Carseats} dataset, which comes with the \texttt{ISLR} package in 
+\texttt{R}.  It contains data related to the 
+sales of child car seats sold at 400 stores.  You want to be able to predict 
+whether or not at least 7,000 units are sold at a store.  The \texttt{Sales} 
+variable measures the number of units sold (in thousands), so we'll create a 
+binary variable to meet our needs shortly.  We'll include the remaining variables 
+in the dataset as candidate predictors.  For more information on them, refer to 
+the help documentation for the dataset.
+\vspace{0.1in}
+
+First create a binary variable that indicates whether at least 7,000 units were
+sold at the store.
+Next, remove the \texttt{Sales} variable from the dataset, since \texttt{Sales7} 
+will be the response (and using \texttt{Sales} to predict it would be cheating!). 
+After doing so, convert any qualitative variables that aren't already factors to 
+factors.  Then remove any rows with missing values, if there are any.  The 
+resulting dataset will be considered your "entire" dataset for the rest of this 
+part.
+\vspace{0.1in}
+
+```{r}
+library(ISLR)
+Carseats$Sales7 <- ifelse(Carseats$Sales >= 7, "Yes", "No")
+carseats <- select(Carseats, -Sales)
+carseats <- na.omit(carseats)
+```
+
+
+```{r}
+set.seed(31)
+indices <- sample(1:nrow(carseats), 3/4*nrow(carseats), replace = FALSE)
+training <- carseats[indices, ]
+test <- carseats[-indices, ]
+
+```
+
+\vspace{0.1in}
+\noindent 2. Fit a classification tree to the training set.  Use 5-fold 
+cross-validation to find the optimal $\alpha$.  Then use the subtree that 
+corresponds to the optimal $\alpha$, along with the test data, to estimate the 
+test accuracy.  Report and interpret this accuracy.
+\vspace{0.1in}
+
+
+
+\vspace{0.1in}
+```{r}
+set.seed(31)
+tree_fit <- train(Sales7 ~ ., data = training,
+                  method = "rpart",
+                  trControl = trainControl(method = "cv", number = 5),
+                  parms = list(split = "information"),
+                  tuneLength = 10
+)
+optimal_alpha <- tree_fit$bestTune
+predicted <- predict(object = tree_fit, newdata = test)
+accuracy_tree <- sum(test$Sales7 == predicted)/nrow(test)
+accuracy_tree
+
+```
+
+\vspace{0.1in}
+\noindent 3. Plot the final classification tree from problem 2 (i.e., the one 
+with the optimal $\alpha$).  When doing so, use \texttt{varlen = 25} in the 
+\texttt{prp} function so that you can see more characters in the variable names. 
+Choose any two of the leaves and interpret them.  Be very careful with any 
+qualitative predictors.  For instance, you should see "ShelveLocGood = 0" at the
+first split.  If it had read "ShelveLocGood = 1," then the left branch would have
+referred to a store having the car seats in a good quality shelving location. 
+However, the 0 flips that, meaning to the left indicates a shelving location that 
+is not good quality (so bad or medium quality in this dataset), and to the right 
+indicates a shelving location that is good quality.
+\vspace{0.1in}
+
+
+
+\vspace{0.1in}
+```{r}
+prp(tree_fit$finalModel, box.palette = "Blues", varlen = 25, digits = 10, 
+  tweak = 1.5)
+```
+
+
+\vspace{0.1in}
+\noindent 4. Run the bagging procedure.  Report and interpret the value you 
+obtain for the test accuracy.
+
+
+
+\vspace{0.1in}
+```{r}
+set.seed(31)
+bag_fit <- train(Sales7 ~ ., data = training,
+                 method = "rf",
+                 trControl = trainControl(method = "none"),
+                 importance = TRUE,
+                 ntree = 1000,
+                 tuneGrid = data.frame(mtry = ncol(training)-1)
+)
+predicted <- predict(object = bag_fit, newdata = test)
+accuracy_bag <- sum(test$Sales7== predicted)/nrow(test)
+accuracy_bag
+```
+
+\vspace{0.1in}
+\noindent 5. Determine which predictors are most important in predicting whether
+or not at least 7,000 units are sold when using bagging.
+\vspace{0.1in}
+
+
+
+\vspace{0.1in}
+```{r}
+importance(bag_fit$finalModel)
+```
+
+\vspace{0.1in}
+\noindent 6. Use random forests.  Report and interpret the value you obtain for 
+the test accuracy.
+\vspace{0.1in}
+
+
+
+\vspace{0.1in}
+```{r}
+set.seed(31)
+rf_fit <- train(Sales7 ~ ., data = training,
+                method = "rf",
+                trControl = trainControl(method = "none"),
+                importance = TRUE,
+                ntree = 1000
+                )
+predicted <- predict(object = rf_fit, newdata = test)
+accuracy_rf <- sum(test$Sales7 == predicted)/nrow(test)
+accuracy_rf
+```
+
+\vspace{0.1in}
+\noindent 7. Determine which predictors are most important in predicting whether
+or not at least 7,000 units are sold when using random forests.
+\vspace{0.1in}
+
+
+
+\vspace{0.1in}
+```{r}
+importance(rf_fit$finalModel)
+```
+
+\vspace{0.1in}
+\noindent 8. Compare the predictive abilities of the three procedures used -- a 
+single classification tree (with optimal pruning), bagging, and random forests -- 
+by referring to the accuracies obtained in problems 2, 4, and 6.
+\vspace{0.1in}
+
+```{r}
+accuracy_bag
+accuracy_rf
+accuracy_tree
+
+
+```
+
+
